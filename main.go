@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"errors"
 	"fmt"
 	"log"
@@ -147,13 +148,17 @@ func main() {
 
 func (s *Server) handleConnection(conn net.Conn) {
 
+	reader := bufio.NewReader(conn)
+
 	for {
 
 		// make buffer
-		buf := make([]byte, 1024)
+		//buf := make([]byte, 1024)
 
 		// Read the incoming connection into the buffer.
-		reqLen, err := conn.Read(buf)
+		//reqLen, err := conn.Read(buf)
+
+		buf, _, err := reader.ReadLine()
 
 		// check to see if EOF is sent
 		if err != nil {
@@ -164,15 +169,15 @@ func (s *Server) handleConnection(conn net.Conn) {
 		}
 
 		// cast to string
-		raw := string(buf[:reqLen])
+		raw := string(buf[:])
 
 		// parse message
 		msg, err := parseMessage(raw)
 
 		if err == ErrBadMsg {
 			//s.Counter.Inc()
-			sendOk(conn)
-			//sendError(conn)
+			//sendOk(conn)
+			sendError(conn)
 
 		} else {
 
@@ -280,6 +285,8 @@ func (s *Server) handleRemove(msg *Msg, conn net.Conn) {
 }
 
 func (s *Server) handleIndex(msg *Msg, conn net.Conn) {
+
+	fmt.Println("HI")
 
 }
 
