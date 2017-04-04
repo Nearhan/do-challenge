@@ -22,28 +22,6 @@ func tearDown() {
 
 }
 
-func TestSplitString(t *testing.T) {
-
-	var testStrs = []struct {
-		in  string   // input string
-		out []string // expected output
-
-	}{
-		{"REMOVE|git|", []string{"REMOVE|git|"}},
-		{"REMOVE|docker|\n", []string{"REMOVE|docker|"}},
-		{"REMOVE|docker|REMOVE|git|\n", []string{"REMOVE|docker|", "REMOVE|git|"}},
-	}
-
-	for _, tt := range testStrs {
-		out := splitString(tt.in)
-		if !reflect.DeepEqual(out, tt.out) {
-			t.Fatalf(" Test Split String failure | Expected: %s | Acutal: %s", tt.out, out)
-		}
-
-	}
-
-}
-
 func TestParseMessage(t *testing.T) {
 
 	var testMsgs = []struct {
@@ -57,6 +35,7 @@ func TestParseMessage(t *testing.T) {
 		{"INDEX|leveldb|git,mysql\n", &Msg{"INDEX", "leveldb", []string{"git", "mysql"}}, nil},
 		{"TEST", nil, ErrBadMsg},
 		{"REMOVE|TEST|git|osx", nil, ErrBadMsg},
+		{"INDEX|git osx", nil, ErrBadMsg},
 		{"slakdjflsadjfljsdlafjlsjadlfjsaldfjlsf$j\n", nil, ErrBadMsg},
 		{"REMOVE|some_package_awesome_pants|\n", &Msg{"REMOVE", "some_package_awesome_pants", nil}, nil},
 	}
@@ -69,4 +48,11 @@ func TestParseMessage(t *testing.T) {
 		}
 	}
 
+}
+
+func TestTestServer(t *testing.T) {
+
+	if testing.Short() {
+		t.Skip()
+	}
 }
