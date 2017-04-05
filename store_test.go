@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"reflect"
 	"sync"
 	"testing"
@@ -47,11 +46,11 @@ func complexState1() *PkgStore {
 	//&Msg{"INDEX", "git", []string{"ubuntu", firefox", "opera"}},
 	return makeStoreWithState(map[string]PkgDtl{
 		"git":     PkgDtl{[]string{"osx", "ubuntu", "windows"}, nil},
-		"osx":     PkgDtl{nil, []string{"git"}},
-		"ubuntu":  PkgDtl{nil, []string{"git"}},
-		"windows": PkgDtl{nil, []string{"git"}},
-		"firefox": PkgDtl{nil, []string{"cat"}},
-		"opera":   PkgDtl{nil, []string{"dog"}},
+		"osx":     PkgDtl{make([]string, 0), []string{"git"}},
+		"ubuntu":  PkgDtl{make([]string, 0), []string{"git"}},
+		"windows": PkgDtl{make([]string, 0), []string{"git"}},
+		"firefox": PkgDtl{make([]string, 0), []string{"cat"}},
+		"opera":   PkgDtl{make([]string, 0), []string{"dog"}},
 	})
 }
 
@@ -59,12 +58,12 @@ func complexState2() *PkgStore {
 
 	//&Msg{"INDEX", "git", []string{"ubuntu", firefox", "opera"}},
 	return makeStoreWithState(map[string]PkgDtl{
-		"git":     PkgDtl{[]string{"ubuntu", "firefox", "opera"}, nil},
-		"osx":     PkgDtl{nil, nil},
-		"ubuntu":  PkgDtl{nil, []string{"git"}},
-		"windows": PkgDtl{nil, nil},
-		"firefox": PkgDtl{nil, []string{"git", "cat"}},
-		"opera":   PkgDtl{nil, []string{"git", "dog"}},
+		"git":     PkgDtl{[]string{"ubuntu", "firefox", "opera"}, make([]string, 0)},
+		"osx":     PkgDtl{make([]string, 0), make([]string, 0)},
+		"ubuntu":  PkgDtl{make([]string, 0), []string{"git"}},
+		"windows": PkgDtl{make([]string, 0), make([]string, 0)},
+		"firefox": PkgDtl{make([]string, 0), []string{"git", "cat"}},
+		"opera":   PkgDtl{make([]string, 0), []string{"git", "dog"}},
 	})
 }
 
@@ -144,14 +143,14 @@ func TestStoreAdd(t *testing.T) {
 			"Index with stateful store swap dependencies",
 			&Msg{"INDEX", "git", []string{"vim"}},
 			makeStoreWithState(map[string]PkgDtl{
-				"vim": PkgDtl{nil, nil},
-				"osx": PkgDtl{nil, []string{"git"}},
-				"git": PkgDtl{[]string{"osx"}, nil}},
+				"vim": PkgDtl{make([]string, 0), make([]string, 0)},
+				"osx": PkgDtl{make([]string, 0), []string{"git"}},
+				"git": PkgDtl{[]string{"osx"}, make([]string, 0)}},
 			),
 			makeStoreWithState(map[string]PkgDtl{
-				"vim": PkgDtl{nil, []string{"git"}},
-				"osx": PkgDtl{nil, nil},
-				"git": PkgDtl{[]string{"vim"}, nil}},
+				"vim": PkgDtl{make([]string, 0), []string{"git"}},
+				"osx": PkgDtl{make([]string, 0), make([]string, 0)},
+				"git": PkgDtl{[]string{"vim"}, make([]string, 0)}},
 			),
 			true,
 		},
@@ -167,13 +166,11 @@ func TestStoreAdd(t *testing.T) {
 	for _, tt := range testStates {
 
 		out := tt.initStore.Add(tt.in)
-		x := reflect.DeepEqual(tt.initStore, tt.finStore)
-		fmt.Println(x)
-		fmt.Println(tt.initStore)
-		fmt.Println(tt.finStore)
-		fmt.Println(out)
+		//fmt.Println(tt.initStore)
 
-		if !x || out != tt.ret {
+		//fmt.Printf("Test PkgStore Add failure on: %s \n Expected: %s \n Acutal: %s \n RETURN %s %s", tt.name, tt.finStore, tt.initStore, tt.ret, out)
+
+		if !reflect.DeepEqual(tt.initStore.Index, tt.finStore.Index) || out != tt.ret {
 			t.Fatalf("Test PkgStore Add failure on: %s \n Expected: %s \n Acutal: %s \n RETURN %s %s", tt.name, tt.finStore, tt.initStore, tt.ret, out)
 		}
 
