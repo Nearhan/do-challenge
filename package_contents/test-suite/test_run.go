@@ -157,7 +157,8 @@ func bruteforceRemovesAllPackages(client PackageIndexerClient, packages []*Packa
 		for _, pkg := range packages {
 			msg := MakeRemoveMessage(pkg)
 			responseCode, err := client.Send(msg)
-			fmt.Printf("MSG :%s Code: %s \n", msg, responseCode)
+			fmt.Println(msg, responseCode)
+			//fmt.Printf("MSG :%s Code: %s \n", msg, responseCode)
 			if err != nil {
 				return fmt.Errorf("%s found error when sending message [%s]: %v", client.Name(), msg, err)
 			}

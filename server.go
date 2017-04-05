@@ -109,50 +109,23 @@ func (s *Server) handleConnection(conn net.Conn) {
 // handleRemove deals with handling a remove request
 func (s *Server) handleRemove(msg *Msg, conn net.Conn) {
 
-	pkg, ok := s.PkgStore.Get(msg.Package)
-	//fmt.Println(pkg)
-	// if pkg doesn't exist return OK
+	ok := s.PkgStore.Remove(msg.Package)
 	if !ok {
-		sendOk(conn)
-	}
-
-	if len(pkg.Deps) == 0 && len(pkg.ReqBy) == 0 {
-		s.PkgStore.Remove(msg.Package)
-		sendOk(conn)
-
-	} else {
-		// can't remove becase of dependencies
 		sendFail(conn)
+		return
 	}
-
+	sendOk(conn)
 }
 
 // handleIndex deals with handling an index request
 func (s *Server) handleIndex(msg *Msg, conn net.Conn) {
 
-	_, ok := s.PkgStore.Get(msg.Package)
-	//fmt.Println(msg)
-
-	// indexing a new package
+	ok := s.PkgStore.Add(msg)
 	if !ok {
-
-		if s.PkgStore.CheckDeps(msg.Deps) {
-
-			s.PkgStore.Add(msg)
-			sendOk(conn)
-			return
-
-		} else {
-			sendFail(conn)
-			return
-		}
-
-	} else {
-		sendOk(conn)
+		sendFail(conn)
 		return
 	}
-
-	// update package
+	sendOk(conn)
 
 }
 
@@ -162,10 +135,9 @@ func (s *Server) handleQuery(msg *Msg, conn net.Conn) {
 	_, ok := s.PkgStore.Get(msg.Package)
 	if !ok {
 		sendFail(conn)
+		return
 	}
 	sendOk(conn)
-
-	return
 
 }
 
