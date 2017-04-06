@@ -56,7 +56,8 @@ func (s *Server) Start() error {
 		conn, err := s.Listener.Accept()
 		log.Println("Accepting Socket Connection...")
 		if err != nil {
-			log.Fatal("server unable to accept connection")
+			log.Println("server unable to accept connection")
+			return err
 		}
 
 		go s.handleConnection(conn)
