@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"fmt"
 	"log"
 	"net"
 	"strings"
@@ -92,8 +91,6 @@ func (s *Server) handleConnection(conn net.Conn) {
 
 		} else {
 
-			fmt.Println(msg)
-
 			switch msg.Command {
 			case "REMOVE":
 				s.handleRemove(msg, conn)
@@ -135,7 +132,7 @@ func (s *Server) handleIndex(msg *Msg, conn net.Conn) {
 // handleQuery deals with handling query request
 func (s *Server) handleQuery(msg *Msg, conn net.Conn) {
 
-	_, ok := s.PkgStore.Get(msg.Package)
+	ok := s.PkgStore.Get(msg.Package)
 	if !ok {
 		sendFail(conn)
 		return
@@ -178,10 +175,10 @@ func parseMessage(raw string) (*Msg, error) {
 	}
 
 	// construct message
-	msg := &Msg{cmd, c[1], nil}
+	msg := &Msg{cmd, strings.ToLower(c[1]), make([]string, 0)}
 
 	if containsDeps(c) {
-		msg.Deps = strings.Split(c[2], ",")
+		msg.Deps = strings.Split(strings.ToLower(c[2]), ",")
 
 	}
 
