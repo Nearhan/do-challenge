@@ -1,16 +1,11 @@
 package main
 
-import "sync"
+import (
+	"fmt"
+	"sync"
+)
 
-// PkgDetail ...
-type PkgDtl struct {
-
-	// Package dependencies
-	Deps []string
-
-	// What packages are required by this package
-	ReqBy []string
-}
+type PkgDtl map[string][]string
 
 // PkgStore is the representation of that state of the package
 type PkgStore struct {
@@ -19,11 +14,11 @@ type PkgStore struct {
 	mutex *sync.RWMutex
 
 	// list of that state
-	Index map[string]PkgDtl
+	Index PkgDtl
 }
 
 // Get ...
-func (pkSt *PkgStore) Get(pkgName string) (PkgDtl, bool) {
+func (pkSt *PkgStore) Get(pkgName string) ([]string, bool) {
 
 	pkSt.mutex.RLock()
 	defer pkSt.mutex.RUnlock()
@@ -35,15 +30,16 @@ func (pkSt *PkgStore) Get(pkgName string) (PkgDtl, bool) {
 // Remove ...
 func (pkSt *PkgStore) Remove(pkgName string) bool {
 
-	pkg, ok := pkSt.Get(pkgName)
+	deps, ok := pkSt.Get(pkgName)
 
 	if !ok {
 		return true
 	}
 
-	// pakcage has no dependences
-	// and isn't required by anything so its okay to remove
-	if len(pkg.Deps) == 0 && len(pkg.ReqBy) == 0 {
+	fmt.Println(pkgName, deps)
+
+	//iterate over everything
+	if !pkSt.hasDependencies(pkgName) {
 
 		pkSt.mutex.Lock()
 		delete(pkSt.Index, pkgName)
@@ -55,11 +51,83 @@ func (pkSt *PkgStore) Remove(pkgName string) bool {
 
 }
 
+func (pkSt *PkgStore) hasDependencies(pkgName string) bool {
+
+	pkSt.mutex.RLock()
+	defer pkSt.mutex.RUnlock()
+
+	for _, v := range pkSt.Index {
+		for _, d := range v {
+			if d == pkgName {
+				return true
+			}
+		}
+
+	}
+
+	return false
+
+}
+
+func (pkSt *PkgStore) DepsInstalled(deps []string) bool {
+
+	for _, v := range deps {
+		_, ok := pkSt.Get(v)
+		if !ok {
+			return false
+
+		}
+
+	}
+	return true
+
+}
+
 // Add ...
 func (pkSt *PkgStore) Add(msg *Msg) bool {
 
-	// check if msg has deps
-	if len(msg.Deps) == 0 {
+	_, ok := pkSt.Get(msg.Package)
+
+	if ok {
+
+		if len(msg.Deps) > 0 {
+			if pkSt.DepsInstalled(msg.Deps) {
+
+				pkSt.mutex.Lock()
+				pkSt.Index[msg.Package] = msg.Deps
+				pkSt.mutex.Unlock()
+				return true
+			}
+			return false
+		}
+
+		pkSt.mutex.Lock()
+		pkSt.Index[msg.Package] = msg.Deps
+		pkSt.mutex.Unlock()
+		return true
+
+	}
+	if len(msg.Deps) > 0 {
+		if pkSt.DepsInstalled(msg.Deps) {
+
+			pkSt.mutex.Lock()
+			pkSt.Index[msg.Package] = msg.Deps
+			pkSt.mutex.Unlock()
+			return true
+		}
+		return false
+	}
+
+	pkSt.mutex.Lock()
+	pkSt.Index[msg.Package] = msg.Deps
+	pkSt.mutex.Unlock()
+	return true
+
+}
+
+/*
+
+	// check if msg has deps if len(msg.Deps) == 0 {
 		pDtl := &PkgDtl{nil, nil}
 		pkSt.mutex.Lock()
 		pkSt.Index[msg.Package] = *pDtl
@@ -155,9 +223,9 @@ func (pkSt *PkgStore) Add(msg *Msg) bool {
 	}
 
 	return false
+*/
 
-}
-
+/*
 // CheckDeps checks to see if all the dependencies are installed for a given package
 func (pkSt *PkgStore) CheckDeps(deps []string) (bool, map[string]PkgDtl) {
 
@@ -175,3 +243,4 @@ func (pkSt *PkgStore) CheckDeps(deps []string) (bool, map[string]PkgDtl) {
 	}
 	return true, deets
 }
+*/

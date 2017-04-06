@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"fmt"
 	"log"
 	"net"
 	"strings"
@@ -31,7 +32,7 @@ type Server struct {
 // MakeNewServer creates a new Server Struct and parses config
 func MakeNewServer(port string) (*Server, error) {
 
-	pkgStore := &PkgStore{&sync.RWMutex{}, make(map[string]PkgDtl)}
+	pkgStore := &PkgStore{&sync.RWMutex{}, make(PkgDtl)}
 
 	addr := ":" + port
 
@@ -90,6 +91,8 @@ func (s *Server) handleConnection(conn net.Conn) {
 			sendError(conn)
 
 		} else {
+
+			fmt.Println(msg)
 
 			switch msg.Command {
 			case "REMOVE":

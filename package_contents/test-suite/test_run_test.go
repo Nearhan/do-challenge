@@ -34,6 +34,10 @@ func TestBruteforceIndexesPackages(t *testing.T) {
 		allPackages.Named(fmt.Sprintf("pkg-%d", i))
 	}
 
+	for _, x := range allPackages.Packages {
+		fmt.Println(x)
+	}
+
 	aStubClient := &stubClient{WhatToReturn: OK}
 
 	bruteforceIndexesPackages(aStubClient, []*Package{}, 0)

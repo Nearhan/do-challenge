@@ -170,7 +170,7 @@ func TestStoreAdd(t *testing.T) {
 
 		//fmt.Printf("Test PkgStore Add failure on: %s \n Expected: %s \n Acutal: %s \n RETURN %s %s", tt.name, tt.finStore, tt.initStore, tt.ret, out)
 
-		if !reflect.DeepEqual(tt.initStore.Index, tt.finStore.Index) || out != tt.ret {
+		if !reflect.DeepEqual(tt.initStore.Index["git"], tt.finStore.Index["git"]) || out != tt.ret {
 			t.Fatalf("Test PkgStore Add failure on: %s \n Expected: %s \n Acutal: %s \n RETURN %s %s", tt.name, tt.finStore, tt.initStore, tt.ret, out)
 		}
 

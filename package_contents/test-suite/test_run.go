@@ -68,6 +68,19 @@ func (t *TestRun) Run() {
 	log.Println("TESTRUN - Trying to remove, index, then remove again a large amount of packages")
 
 	homebrewPackages, err := BrewToPackages(&AllPackages{})
+	fmt.Println(len(homebrewPackages.Packages))
+	for _, x := range homebrewPackages.Packages {
+		d := []string{}
+
+		for _, c := range x.Dependencies {
+			d = append(d, c.Name)
+
+		}
+
+		fmt.Println(x.Name, d)
+
+	}
+
 	if err != nil {
 		panic(fmt.Sprintf("Error parsing packages"))
 	}
@@ -87,6 +100,8 @@ func (t *TestRun) Run() {
 	concurrentverifyAllPackages(clientCounter, t, segmentedPackages, OK)
 
 	log.Println("Step 4: Remove all installed packages")
+	time.Sleep(time.Second * 100)
+
 	clientCounter = clientCounter + t.ConcurrencyLevel
 	concurrentBruteforceRemovesAllPackages(clientCounter, t, segmentedPackages)
 
@@ -157,8 +172,6 @@ func bruteforceRemovesAllPackages(client PackageIndexerClient, packages []*Packa
 		for _, pkg := range packages {
 			msg := MakeRemoveMessage(pkg)
 			responseCode, err := client.Send(msg)
-			fmt.Println(msg, responseCode)
-			//fmt.Printf("MSG :%s Code: %s \n", msg, responseCode)
 			if err != nil {
 				return fmt.Errorf("%s found error when sending message [%s]: %v", client.Name(), msg, err)
 			}
