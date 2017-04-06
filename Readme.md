@@ -80,7 +80,7 @@ docker run -p "8080:8080" do-challenge
 ```
 
 
-### Do not have Go installed
+### Do NOT have Go installed
 
 
 1. Build the image
