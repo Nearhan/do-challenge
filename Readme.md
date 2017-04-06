@@ -92,5 +92,5 @@ docker build -f Dockerfile.extra . -t do-challenge
 2. Run the container
 
 ```
-docker build -f Dockerfile.extra . -t do-challenge
+docker run -p "8080:8080" do-challenge
 ```
