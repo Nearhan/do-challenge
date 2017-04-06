@@ -6,8 +6,6 @@ import (
 	"os"
 )
 
-// 	r, _ := regexp.Compile(`^(INDEX|REMOVE|QUERY)\|([\w\d\-_\+]+)\|([\w\d,\-_\+]+)*\n`)
-
 // ErrBadMsg is an error where QUERY || INDEX || ERROR is not
 // in the first section of the command and it checks the Format
 // as CMD|package|dep1,dep2

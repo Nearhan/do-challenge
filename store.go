@@ -22,6 +22,7 @@ func (pkSt *PkgStore) Get(pkgName string) bool {
 
 	pkSt.mutex.RLock()
 	defer pkSt.mutex.RUnlock()
+
 	_, ok := pkSt.Index[pkgName]
 	return ok
 
@@ -84,31 +85,14 @@ func (pkSt *PkgStore) DepsInstalled(deps []string) bool {
 
 }
 
-// Add ...
+// Add tries to add a package to the store
+// checks its deps first to see if they are installed
 func (pkSt *PkgStore) Add(msg *Msg) bool {
 
-	ok := pkSt.Get(msg.Package)
-
-	if ok {
-
-		if len(msg.Deps) > 0 {
-			if pkSt.DepsInstalled(msg.Deps) {
-
-				pkSt.mutex.Lock()
-				pkSt.Index[msg.Package] = msg.Deps
-				pkSt.mutex.Unlock()
-				return true
-			}
-			return false
-		}
-
-		pkSt.mutex.Lock()
-		pkSt.Index[msg.Package] = msg.Deps
-		pkSt.mutex.Unlock()
-		return true
-
-	}
+	// does it have deps?
 	if len(msg.Deps) > 0 {
+
+		// check if its deps are installed
 		if pkSt.DepsInstalled(msg.Deps) {
 
 			pkSt.mutex.Lock()

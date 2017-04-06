@@ -9,6 +9,7 @@ import (
 	"testing"
 )
 
+// starting test port
 var testPort = 8081
 
 func TestParseMessage(t *testing.T) {
@@ -194,13 +195,19 @@ func TestServer(t *testing.T) {
 
 	for _, tt := range testCases {
 
+		// setup server
 		s := tt.setup(testPort)
 
+		// create client
 		c, err := net.Dial("tcp", fmt.Sprintf(":%d", testPort))
+
+		// create reader for socket
 		reader := bufio.NewReader(c)
 		if err != nil {
 			t.Fatalf("Test Server Failure on \n %s \n unable to talk to server on port %s \n ", tt.name, testPort)
 		}
+
+		// run the test casses
 		for i, m := range tt.in {
 
 			c.Write([]byte(m))

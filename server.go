@@ -15,12 +15,6 @@ type Msg struct {
 	Deps    []string
 }
 
-// Config is the configuration for the server
-type Config struct {
-	port  string
-	debug bool
-}
-
 // Server struct for server implementation
 type Server struct {
 	PkgStore *PkgStore
@@ -28,7 +22,7 @@ type Server struct {
 	Listener net.Listener
 }
 
-// MakeNewServer creates a new Server Struct and parses config
+// MakeNewServer creates a new Server Struct and parses port
 func MakeNewServer(port string) (*Server, error) {
 
 	pkgStore := &PkgStore{&sync.RWMutex{}, make(PkgDtl)}
@@ -87,11 +81,13 @@ func (s *Server) handleConnection(conn net.Conn) {
 		// parse message
 		msg, err := parseMessage(raw)
 
+		// if err send Error back to the client
 		if err == ErrBadMsg {
 			sendError(conn)
 
 		} else {
 
+			// router for requests
 			switch msg.Command {
 			case "REMOVE":
 				s.handleRemove(msg, conn)
