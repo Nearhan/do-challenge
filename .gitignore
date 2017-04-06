@@ -1,4 +1,7 @@
-do-challenge
-data.text
-*.swp
-package_contents/*
+*.exe
+*.dll
+*.so
+*.dylib
+
+
+
