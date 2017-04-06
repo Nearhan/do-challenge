@@ -3,5 +3,8 @@
 *.so
 *.dylib
 
+do-challenge
+main
+
 
 
