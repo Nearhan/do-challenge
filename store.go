@@ -4,7 +4,7 @@ import (
 	"sync"
 )
 
-// PkgDtl ...
+// PkgDtl type alias
 type PkgDtl map[string][]string
 
 // PkgStore is the representation of that state of the package
@@ -17,7 +17,7 @@ type PkgStore struct {
 	Index PkgDtl
 }
 
-// Get ...
+// Get tries to get a package
 func (pkSt *PkgStore) Get(pkgName string) bool {
 
 	pkSt.mutex.RLock()
@@ -27,7 +27,8 @@ func (pkSt *PkgStore) Get(pkgName string) bool {
 
 }
 
-// Remove ...
+// Remove tries to remove a package if no other
+// packages depend on it
 func (pkSt *PkgStore) Remove(pkgName string) bool {
 
 	ok := pkSt.Get(pkgName)
@@ -49,6 +50,7 @@ func (pkSt *PkgStore) Remove(pkgName string) bool {
 
 }
 
+// checks to see any package depends on pkgName
 func (pkSt *PkgStore) hasDependencies(pkgName string) bool {
 
 	pkSt.mutex.RLock()
@@ -67,7 +69,7 @@ func (pkSt *PkgStore) hasDependencies(pkgName string) bool {
 
 }
 
-// DepsInstalled ...
+// DepsInstalled checks to see if the packages inside deps are all installed
 func (pkSt *PkgStore) DepsInstalled(deps []string) bool {
 
 	for _, v := range deps {
