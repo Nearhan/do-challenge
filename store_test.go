@@ -6,11 +6,13 @@ import (
 	"testing"
 )
 
+// helper func to create an empty store
 func makeStore() *PkgStore {
 
 	return &PkgStore{&sync.RWMutex{}, make(PkgDtl)}
 }
 
+// helper func to create an empty with predefiend state
 func makeStoreWithState(m *PkgDtl) *PkgStore {
 	s := makeStore()
 	s.Index = *m
@@ -18,12 +20,14 @@ func makeStoreWithState(m *PkgDtl) *PkgStore {
 
 }
 
+// helper func to create empty []string
 func makeEmptySliceStr() []string {
 
 	return make([]string, 0)
 
 }
 
+// TestStoreRemove unit tests the Remove method on store
 func TestStoreRemove(t *testing.T) {
 	testStates := []struct {
 		name      string    // name of the test
@@ -67,6 +71,7 @@ func TestStoreRemove(t *testing.T) {
 
 }
 
+// TestStoreRemove unit tests the Add method on store
 func TestStoreAdd(t *testing.T) {
 	testStates := []struct {
 		name      string    // name of the type of check we are doing
@@ -133,6 +138,7 @@ func TestStoreAdd(t *testing.T) {
 
 }
 
+// TestStoreRemove unit tests the GET method on store
 func TestStoreGet(t *testing.T) {
 
 	testStates := []struct {

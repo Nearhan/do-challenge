@@ -144,15 +144,18 @@ func (s *Server) handleQuery(msg *Msg, conn net.Conn) {
 
 // helper methods
 
+// sends OK on client
 func sendOk(conn net.Conn) {
 	conn.Write([]byte("OK\n"))
 
 }
 
+// sends FAIL on client
 func sendFail(conn net.Conn) {
 	conn.Write([]byte("FAIL\n"))
 }
 
+// sends ERROR on client
 func sendError(conn net.Conn) {
 	conn.Write([]byte("ERROR\n"))
 }
@@ -187,6 +190,7 @@ func parseMessage(raw string) (*Msg, error) {
 
 }
 
+// validate incoming CMD
 func validCmd(cmd string) bool {
 	switch cmd {
 	case "REMOVE":

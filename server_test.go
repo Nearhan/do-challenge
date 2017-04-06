@@ -148,6 +148,48 @@ func TestServer(t *testing.T) {
 				"FAIL",
 			},
 		},
+		{
+			"Server Integration Test ALL MESSAGES",
+			func(p int) *Server {
+
+				port := strconv.Itoa(p)
+
+				s, err := MakeNewServer(port)
+				if err != nil {
+					t.Fatalf("Test Server unable to start on port %s", 8081, err)
+
+				}
+				// setup store state
+				s.PkgStore = makeStoreWithState(&PkgDtl{
+					"git": []string{},
+					"vim": []string{},
+				})
+
+				go s.Start()
+				return s
+
+			},
+			[]string{
+				"REMOVE|git|\n",
+				"QUERY|git|\n",
+				"SDFSD|DKFJLSJ|\n",
+				"INDEX|git|vim,osx\n",
+				"QUERY|vim|\n",
+				"INDEX|osx|\n",
+				"INDEX|git|vim,osx\n",
+				"REMOVE|vim|\n",
+			},
+			[]string{
+				"OK",
+				"FAIL",
+				"ERROR",
+				"FAIL",
+				"OK",
+				"OK",
+				"OK",
+				"FAIL",
+			},
+		},
 	}
 
 	for _, tt := range testCases {
@@ -158,7 +200,6 @@ func TestServer(t *testing.T) {
 		reader := bufio.NewReader(c)
 		if err != nil {
 			t.Fatalf("Test Server Failure on \n %s \n unable to talk to server on port %s \n ", tt.name, testPort)
-
 		}
 		for i, m := range tt.in {
 
@@ -171,7 +212,6 @@ func TestServer(t *testing.T) {
 			raw := string(buf[:])
 			if raw != tt.out[i] {
 				t.Fatalf("Test Server Failure on \n %s \n Expected : %s \n Actual: %s", tt.name, tt.out[i], raw)
-
 			}
 
 		}
