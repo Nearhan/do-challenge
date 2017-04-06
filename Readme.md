@@ -4,9 +4,45 @@
 ## Design Rationale
 
 
+Initially when I wrote the TCP server I had come up with a data structure like this 
+
+```
+
+{
+    "Package_Name": {
+        Deps : [] // dependencies for this package
+        ReqBy: [] // required by other packages
+    }
+}
+
+```
+
+I changed my mind however since the Index and Remove operations become pretty large and pretty complex.
+And hard to read. Also it didn't run as fast as I thought it would.
 
 
+So I opted out for a simpler data model.
 
+
+```
+{
+    "Package_Name": [] // deps for the package
+}
+```
+
+Which meant that I use raw iteration to Remove and Add dependencies.
+This is less efficient then using the other data structure but my code was much simpler to read
+and understand. If we were able to use some libraries, I would have opted out to use leveldb
+or some other embedded database for all that nice persistence stuff.
+
+
+## Tests
+
+I've added integration and unit tests.
+
+server_test.go is where I spin up a real server and test its outputs, the "integration" tests
+
+All other tests are simple unit tests.
 
 
 ## Dockerfile run
@@ -16,7 +52,7 @@ I've included two docker files.
 
 
 The default Dockerfile assumes you have go installed correctly.
-This uses the scatch image and produces a very small image because all
+This uses the scratch image and produces a very small image because all
 that is in the container is the compiled go binary
 
 
@@ -58,8 +94,3 @@ docker build -f Dockerfile.extra . -t do-challenge
 ```
 docker build -f Dockerfile.extra . -t do-challenge
 ```
-
-
-
-
-
