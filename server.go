@@ -15,12 +15,6 @@ type Msg struct {
 	Deps    []string
 }
 
-// Config is the configuration for the server
-type Config struct {
-	port  string
-	debug bool
-}
-
 // Server struct for server implementation
 type Server struct {
 	PkgStore *PkgStore
@@ -28,10 +22,10 @@ type Server struct {
 	Listener net.Listener
 }
 
-// MakeNewServer creates a new Server Struct and parses config
+// MakeNewServer creates a new Server Struct and parses port
 func MakeNewServer(port string) (*Server, error) {
 
-	pkgStore := &PkgStore{&sync.RWMutex{}, make(map[string]PkgDtl)}
+	pkgStore := &PkgStore{&sync.RWMutex{}, make(PkgDtl)}
 
 	addr := ":" + port
 
@@ -56,7 +50,8 @@ func (s *Server) Start() error {
 		conn, err := s.Listener.Accept()
 		log.Println("Accepting Socket Connection...")
 		if err != nil {
-			log.Fatal("server unable to accept connection")
+			log.Println("server unable to accept connection")
+			return err
 		}
 
 		go s.handleConnection(conn)
@@ -86,11 +81,13 @@ func (s *Server) handleConnection(conn net.Conn) {
 		// parse message
 		msg, err := parseMessage(raw)
 
+		// if err send Error back to the client
 		if err == ErrBadMsg {
 			sendError(conn)
 
 		} else {
 
+			// router for requests
 			switch msg.Command {
 			case "REMOVE":
 				s.handleRemove(msg, conn)
@@ -132,7 +129,7 @@ func (s *Server) handleIndex(msg *Msg, conn net.Conn) {
 // handleQuery deals with handling query request
 func (s *Server) handleQuery(msg *Msg, conn net.Conn) {
 
-	_, ok := s.PkgStore.Get(msg.Package)
+	ok := s.PkgStore.Get(msg.Package)
 	if !ok {
 		sendFail(conn)
 		return
@@ -143,15 +140,18 @@ func (s *Server) handleQuery(msg *Msg, conn net.Conn) {
 
 // helper methods
 
+// sends OK on client
 func sendOk(conn net.Conn) {
 	conn.Write([]byte("OK\n"))
 
 }
 
+// sends FAIL on client
 func sendFail(conn net.Conn) {
 	conn.Write([]byte("FAIL\n"))
 }
 
+// sends ERROR on client
 func sendError(conn net.Conn) {
 	conn.Write([]byte("ERROR\n"))
 }
@@ -175,10 +175,10 @@ func parseMessage(raw string) (*Msg, error) {
 	}
 
 	// construct message
-	msg := &Msg{cmd, c[1], nil}
+	msg := &Msg{cmd, strings.ToLower(c[1]), make([]string, 0)}
 
 	if containsDeps(c) {
-		msg.Deps = strings.Split(c[2], ",")
+		msg.Deps = strings.Split(strings.ToLower(c[2]), ",")
 
 	}
 
@@ -186,6 +186,7 @@ func parseMessage(raw string) (*Msg, error) {
 
 }
 
+// validate incoming CMD
 func validCmd(cmd string) bool {
 	switch cmd {
 	case "REMOVE":

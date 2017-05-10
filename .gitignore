@@ -1,3 +1,10 @@
+*.exe
+*.dll
+*.so
+*.dylib
+
 do-challenge
-data.text
-*.swp
+main
+
+
+
